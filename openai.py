@@ -97,20 +97,37 @@ async def fill_openai_job_application(
         await page.fill(location_input_xpath, location)
         await page.wait_for_timeout(800)  # Wait for autocomplete suggestions to appear
 
-        # Wait for autocomplete dropdown and click the first selectable option
+        # Wait for autocomplete dropdown and click the first option
+        # The dropdown is a portal element appended to body with dynamic ID
         try:
-            # Wait for any floating-ui dropdown to appear (ID might be dynamic)
+            # Step 1: Wait for the dropdown menu to appear (dynamic floating-ui element)
             await page.wait_for_selector("[id^='floating-ui-']", state="visible", timeout=3000)
-            await page.wait_for_timeout(300)
-            # The first div is often a container, so we click the dropdown itself
-            # which defaults to the first actual option
-            dropdown_selector = "[id^='floating-ui-']"
-            await page.click(dropdown_selector)
+            await page.wait_for_timeout(500)
+
+            # Step 2: Find and click the first option in the dropdown
+            # The dropdown contains clickable divs, we need to find the actual option elements
+            # Try to click an element with text that matches the location pattern
+            # Or just click the first clickable option
+            first_option = page.locator("[id^='floating-ui-'] div[role='option']").first
+            if await first_option.count() > 0:
+                await first_option.click()
+            else:
+                # Fallback: try clicking any div that looks clickable
+                first_option = page.locator("[id^='floating-ui-'] > div").first
+                await first_option.click()
+
             await page.wait_for_timeout(500)
             print(f"✓ Location selected: {location}")
         except Exception as e:
-            # If no autocomplete appears, continue
-            print(f"⚠ Location autocomplete not found: {e}")
+            # If no autocomplete appears, try keyboard navigation as fallback
+            print(f"⚠ Trying keyboard navigation for location: {e}")
+            try:
+                await page.keyboard.press("ArrowDown")
+                await page.wait_for_timeout(200)
+                await page.keyboard.press("Enter")
+                await page.wait_for_timeout(500)
+            except:
+                print(f"⚠ Location autocomplete failed")
             pass
 
     # Fill date field - click on the date input
