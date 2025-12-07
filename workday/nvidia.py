@@ -53,13 +53,13 @@ async def nvidia_application_workflow(
         await apply_button.click()
         await page.wait_for_timeout(1000)
 
-        # # Step 1: Upload resume
-        # print("Step 1: Uploading resume...")
-        # await upload_resume(
-        #     page=page,
-        #     resume_path=resume_path,
-        # )
-        # print("Resume upload complete.\n")
+        # Step 1: Upload resume
+        print("Step 1: Uploading resume...")
+        await upload_resume(
+            page=page,
+            resume_path=resume_path,
+        )
+        print("Resume upload complete.\n")
 
         # Step 2: Fill "How you heard about us"
         print("Step 2: Filling 'How you heard about us'...")
@@ -90,6 +90,37 @@ async def nvidia_application_workflow(
             page=page,
         )
         print("Personal info complete.\n")
+        
+        await add_education(
+            page=page,
+            education_type="Bachelor's Degree",
+            school_name="Stanford University",
+            degree="Bachelor of Science in Computer Science",
+            start_month="2020",
+            end_month="2024",
+        )
+        print("Education complete.\n")
+        
+        await add_work_experience(
+            page=page,
+            job_title="Software Engineer",
+            company_name="NVIDIA",
+            start_month="2024",
+            end_month="2025",
+        )
+        print("Work experience complete.\n")
+        
+        await add_url(
+            page=page,
+            linkedin_url="https://www.linkedin.com/in/johndoe",
+            github_url="https://github.com/johndoe",
+        )
+        print("URLs complete.\n")
+        
+        await save_and_continue(
+            page=page,
+        )
+        
 
     print("=== Workflow Complete ===")
 
