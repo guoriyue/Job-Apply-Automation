@@ -2,7 +2,7 @@
 Playwright automation script for filling out NVIDIA job application form.
 
 This script fills in work experience details on the NVIDIA career application page.
-It handles a multi-step work experience form with job titles, company names, dates, and role descriptions.
+Uses stable CSS selectors that match by ID suffix to handle dynamic IDs.
 """
 
 import asyncio
@@ -11,116 +11,152 @@ from playwright.async_api import async_playwright, Page
 CDP_URL = "http://localhost:9222"
 
 
-async def fill_work_experience_form(
+async def click_add_work_experience(page: Page) -> None:
+    """
+    Click the "Add" button in the Work Experience section (first time).
+
+    Use this when there are NO work experience entries yet.
+
+    Args:
+        page: Playwright Page object
+    """
+    # First time: button is called "Add", not "Add Another"
+    work_exp_section = page.get_by_role("group", name="Work Experience")
+    add_button = work_exp_section.get_by_role("button", name="Add")
+
+    await add_button.click()
+    await page.wait_for_timeout(500)
+    await page.evaluate("window.scrollBy(0, 300)")
+    await page.wait_for_timeout(300)
+
+    print("✓ Clicked 'Add' button in Work Experience")
+
+
+async def click_add_another_work_experience(page: Page) -> None:
+    """
+    Click the "Add Another" button in the Work Experience section.
+
+    Use this when there's already at least one work experience entry.
+
+    Args:
+        page: Playwright Page object
+    """
+    # After first entry: button is called "Add Another"
+    work_exp_section = page.get_by_role("group", name="Work Experience")
+    add_button = work_exp_section.get_by_role("button", name="Add Another")
+
+    await add_button.click()
+    await page.wait_for_timeout(500)
+    await page.evaluate("window.scrollBy(0, 300)")
+    await page.wait_for_timeout(300)
+
+    print("✓ Clicked 'Add Another' button in Work Experience")
+
+
+async def fill_work_experience(
+    page: Page,
+    index: int = 0,
     job_title: str = "Software Engineer",
     company_name: str = "Tech Company Inc",
     start_month: int = 1,
     start_year: int = 2020,
     end_month: int = 12,
     end_year: int = 2023,
-    role_description: str = "Developed and maintained software applications, collaborated with cross-functional teams, and implemented new features.",
+    role_description: str = "Developed and maintained software applications.",
 ) -> None:
     """
-    Fill out the work experience section of the NVIDIA job application form.
-
-    This function navigates to the NVIDIA careers page and fills in a second work experience
-    entry with the provided job details. It assumes the page is already loaded at the correct URL.
+    Fill work experience entry by index (0-based).
 
     Args:
-        job_title: The job title to enter (default: "Software Engineer")
-        company_name: The company name to enter (default: "Tech Company Inc")
-        start_month: The starting month as an integer (1-12) (default: 1)
-        start_year: The starting year as an integer (default: 2020)
-        end_month: The ending month as an integer (1-12) (default: 12)
-        end_year: The ending year as an integer (default: 2023)
-        role_description: The role description/summary (default: "Developed and maintained software applications...")
+        page: Playwright Page object
+        index: 0-based index of the work experience entry to fill
+               Use 0 for first, -1 for last (newly added)
+        job_title: The job title to enter
+        company_name: The company name to enter
+        start_month: The starting month (1-12)
+        start_year: The starting year
+        end_month: The ending month (1-12)
+        end_year: The ending year
+        role_description: The role description/summary
     """
-    async with async_playwright() as p:
-        # Attach to existing Chrome via CDP
-        browser = await p.chromium.connect_over_cdp(CDP_URL)
-        ctx = browser.contexts[0] if browser.contexts else await browser.new_context()
-        page: Page = ctx.pages[0] if ctx.pages else await ctx.new_page()
+    # Helper to get element by index (-1 means last)
+    def get_field(selector: str):
+        loc = page.locator(selector)
+        return loc.last if index == -1 else loc.nth(index)
 
-        try:
-            # Navigate to the NVIDIA job application page
-            url = "https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/US,-CA,-Santa-Clara/Senior-Manager--Robotics-Quality-Assurance_JR2003248/apply/autofillWithResume"
-            await page.goto(url, wait_until="load")
-            await page.wait_for_timeout(1500)
+    # Fill in Job Title
+    job_title_input = get_field('[id$="--jobTitle"]')
+    await job_title_input.click()
+    await job_title_input.fill(job_title)
+    await page.wait_for_timeout(300)
 
-            # Scroll to the "Add Another" button for Work Experience
-            await page.locator('xpath=//div[@id="root"]/div/div/div[2]/div/main/div/div[3]/div[1]/div[2]/div[1]/div[3]/div/div/button').click()
-            await page.wait_for_timeout(500)
+    # Fill in Company Name
+    company_input = get_field('[id$="--companyName"]')
+    await company_input.click()
+    await company_input.fill(company_name)
+    await page.wait_for_timeout(300)
 
-            # Scroll down to see the new work experience entry
-            await page.evaluate("window.scrollBy(0, 500)")
-            await page.wait_for_timeout(500)
+    # Fill in Start Date - Month
+    start_month_input = get_field('[id$="--startDate-dateSectionMonth-input"]')
+    await start_month_input.click()
+    await start_month_input.fill(str(start_month))
+    await page.wait_for_timeout(300)
 
-            # Fill in Job Title for Work Experience 2
-            job_title_input = page.locator('xpath=//input[@id="workExperience-71--jobTitle"]')
-            await job_title_input.click()
-            await job_title_input.fill(job_title)
-            await page.wait_for_timeout(300)
+    # Fill in Start Date - Year
+    start_year_input = get_field('[id$="--startDate-dateSectionYear-input"]')
+    await start_year_input.click()
+    await start_year_input.fill(str(start_year))
+    await page.wait_for_timeout(300)
 
-            # Fill in Company Name
-            company_input = page.locator('xpath=//input[@id="workExperience-71--companyName"]')
-            await company_input.click()
-            await company_input.fill(company_name)
-            await page.wait_for_timeout(300)
+    # Fill in End Date - Month
+    end_month_input = get_field('[id$="--endDate-dateSectionMonth-input"]')
+    await end_month_input.click()
+    await end_month_input.fill(str(end_month))
+    await page.wait_for_timeout(300)
 
-            # Fill in Start Date - Month
-            start_month_input = page.locator('xpath=//input[@id="workExperience-71--startDate-dateSectionMonth-input"]')
-            await start_month_input.click()
-            await start_month_input.fill(str(start_month))
-            await page.wait_for_timeout(300)
+    # Fill in End Date - Year
+    end_year_input = get_field('[id$="--endDate-dateSectionYear-input"]')
+    await end_year_input.click()
+    await end_year_input.fill(str(end_year))
+    await page.wait_for_timeout(300)
 
-            # Fill in Start Date - Year
-            start_year_input = page.locator('xpath=//input[@id="workExperience-71--startDate-dateSectionYear-input"]')
-            await start_year_input.click()
-            await start_year_input.fill(str(start_year))
-            await page.wait_for_timeout(500)
+    # Scroll down to see Role Description field
+    await page.evaluate("window.scrollBy(0, 300)")
+    await page.wait_for_timeout(300)
 
-            # Fill in End Date - Month
-            end_month_input = page.locator('xpath=//input[@id="workExperience-71--endDate-dateSectionMonth-input"]')
-            await end_month_input.click()
-            await end_month_input.fill(str(end_month))
-            await page.wait_for_timeout(300)
+    # Fill in Role Description
+    role_desc_input = get_field('[id$="--roleDescription"]')
+    await role_desc_input.click()
+    await role_desc_input.fill(role_description)
+    await page.wait_for_timeout(300)
 
-            # Fill in End Date - Year
-            end_year_input = page.locator('xpath=//input[@id="workExperience-71--endDate-dateSectionYear-input"]')
-            await end_year_input.click()
-            await end_year_input.fill(str(end_year))
-            await page.wait_for_timeout(500)
-
-            # Scroll down to see Role Description field
-            await page.evaluate("window.scrollBy(0, 300)")
-            await page.wait_for_timeout(500)
-
-            # Fill in Role Description
-            role_desc_input = page.locator('xpath=//textarea[@id="workExperience-71--roleDescription"]')
-            await role_desc_input.click()
-            await role_desc_input.fill(role_description)
-            await page.wait_for_timeout(500)
-
-            print("Work experience form filled successfully!")
-
-        except Exception as e:
-            print(f"An error occurred: {e}")
-            raise
-
-        # Don't close browser - it's the user's Chrome
+    print(f"✓ Work experience filled (index={index})")
 
 
 if __name__ == "__main__":
-    # Example usage - run the automation with default values
-    asyncio.run(fill_work_experience_form())
+    async def main():
+        async with async_playwright() as p:
+            browser = await p.chromium.connect_over_cdp(CDP_URL)
+            ctx = browser.contexts[0] if browser.contexts else await browser.new_context()
+            page: Page = ctx.pages[0] if ctx.pages else await ctx.new_page()
 
-    # Example usage with custom values:
-    # asyncio.run(fill_work_experience_form(
-    #     job_title="Software Engineer",
-    #     company_name="Tech Company Inc",
-    #     start_month=1,
-    #     start_year=2020,
-    #     end_month=12,
-    #     end_year=2023,
-    #     role_description="Developed and maintained software applications"
-    # ))
+            try:
+                url = "https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/US,-CA,-Santa-Clara/Senior-Manager--Robotics-Quality-Assurance_JR2003248/apply/autofillWithResume"
+                await page.goto(url, wait_until="load")
+                await page.wait_for_timeout(1500)
+
+                # First work experience: click "Add" then fill
+                await click_add_work_experience(page)
+                await fill_work_experience(page, index=0, job_title="SWE", company_name="Google")
+
+                # Second work experience: click "Add Another" then fill
+                await click_add_another_work_experience(page)
+                await fill_work_experience(page, index=-1, job_title="Intern", company_name="Meta")
+
+                print("✓ Done!")
+
+            except Exception as e:
+                print(f"✗ Error: {e}")
+                raise
+
+    asyncio.run(main())

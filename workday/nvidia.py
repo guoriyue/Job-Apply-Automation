@@ -13,6 +13,9 @@ from personal_info import fill_personal_info
 from how_you_heard import how_you_heard_about_us
 from phone_number import fill_phone_number
 from save_and_continue import save_and_continue
+from add_work_experience import click_add_work_experience, click_add_another_work_experience, fill_work_experience
+from add_education import click_add_education, click_add_another_education, fill_education
+from add_url import add_urls
 
 CDP_URL = "http://localhost:9222"
 
@@ -53,12 +56,12 @@ async def nvidia_application_workflow(
         await apply_button.click()
         await page.wait_for_timeout(1000)
 
-        # Step 1: Upload resume
-        print("Step 1: Uploading resume...")
-        await upload_resume(
-            page=page,
-            resume_path=resume_path,
-        )
+        # # Step 1: Upload resume
+        # print("Step 1: Uploading resume...")
+        # await upload_resume(
+        #     page=page,
+        #     resume_path=resume_path,
+        # )
         print("Resume upload complete.\n")
 
         # Step 2: Fill "How you heard about us"
@@ -91,26 +94,51 @@ async def nvidia_application_workflow(
         )
         print("Personal info complete.\n")
         
-        await add_education(
+
+        # First work experience: click "Add" then fill
+        await click_add_work_experience(page)
+        await fill_work_experience(
             page=page,
-            education_type="Bachelor's Degree",
+            index=0,
+            job_title="Software Engineer",
+            company_name="NVIDIA",
+            start_month=1,
+            start_year=2024,
+            end_month=1,
+            end_year=2025,
+        )
+        print("Work experience 1 complete.\n")
+
+        # Second work experience: click "Add Another" then fill
+        await click_add_another_work_experience(page)
+        await fill_work_experience(
+            page=page,
+            index=-1,
+            job_title="Intern",
+            company_name="Meta",
+            start_month=1,
+            start_year=2020,
+            end_month=1,
+            end_year=2023,
+        )
+        print("Work experience 2 complete.\n")
+        
+        # First education: click "Add" then fill
+        await click_add_education(page)
+        await fill_education(
+            page=page,
+            index=0,
             school_name="Stanford University",
-            degree="Bachelor of Science in Computer Science",
-            start_month="2020",
-            end_month="2024",
+            degree="Bachelor's Degree",
+            field_of_study="Computer Science",
+            gpa="3.8",
+            start_year="2020",
+            end_year="2024",
         )
         print("Education complete.\n")
         
-        await add_work_experience(
-            page=page,
-            job_title="Software Engineer",
-            company_name="NVIDIA",
-            start_month="2024",
-            end_month="2025",
-        )
-        print("Work experience complete.\n")
         
-        await add_url(
+        await add_urls(
             page=page,
             linkedin_url="https://www.linkedin.com/in/johndoe",
             github_url="https://github.com/johndoe",

@@ -17,7 +17,7 @@ async def save_and_continue(page: Page) -> None:
     await page.wait_for_timeout(500)
 
     # Find the "Save and Continue" button
-    save_button = page.locator("xpath=//div[@id='root']/div/div/div[2]/div/main/div/div[3]/div[2]/div[3]/div/button")
+    save_button = page.get_by_role("button", name="Save and Continue")
 
     # Wait for the button to be visible
     await save_button.wait_for(state="visible", timeout=3000)
