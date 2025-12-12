@@ -96,28 +96,18 @@ async def fill_work_experience(
     await company_input.fill(company_name)
     await page.wait_for_timeout(300)
 
-    # Fill in Start Date - Month
-    start_month_input = get_field('[id$="--startDate-dateSectionMonth-input"]')
-    await start_month_input.click()
-    await start_month_input.fill(str(start_month))
+    # Fill in Start Date - click the display element first to reveal input
+    start_month_display = get_field("div[id^='workExperience-'][id$='--startDate-dateSectionMonth-display']")
+    await start_month_display.click()
+    await page.keyboard.type(str(start_month))  # Type month, focus auto-moves to year
+    await page.keyboard.type(str(start_year))   # Type year
     await page.wait_for_timeout(300)
 
-    # Fill in Start Date - Year
-    start_year_input = get_field('[id$="--startDate-dateSectionYear-input"]')
-    await start_year_input.click()
-    await start_year_input.fill(str(start_year))
-    await page.wait_for_timeout(300)
-
-    # Fill in End Date - Month
-    end_month_input = get_field('[id$="--endDate-dateSectionMonth-input"]')
-    await end_month_input.click()
-    await end_month_input.fill(str(end_month))
-    await page.wait_for_timeout(300)
-
-    # Fill in End Date - Year
-    end_year_input = get_field('[id$="--endDate-dateSectionYear-input"]')
-    await end_year_input.click()
-    await end_year_input.fill(str(end_year))
+    # Fill in End Date - click the display element first to reveal input
+    end_month_display = get_field("div[id^='workExperience-'][id$='--endDate-dateSectionMonth-display']")
+    await end_month_display.click()
+    await page.keyboard.type(str(end_month))  # Type month, focus auto-moves to year
+    await page.keyboard.type(str(end_year))   # Type year
     await page.wait_for_timeout(300)
 
     # Scroll down to see Role Description field

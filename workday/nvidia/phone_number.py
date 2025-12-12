@@ -6,7 +6,7 @@ of the NVIDIA Workday job application.
 """
 
 from playwright.async_api import Page
-from utils import clear_chip_field_by_input_id
+from .utils import clear_chip_field_by_input_id
 
 
 async def fill_phone_number(

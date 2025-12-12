@@ -8,14 +8,14 @@ This script orchestrates the full job application flow:
 
 import asyncio
 from playwright.async_api import async_playwright
-from upload_resume import upload_resume
-from personal_info import fill_personal_info
-from how_you_heard import how_you_heard_about_us
-from phone_number import fill_phone_number
-from save_and_continue import save_and_continue
-from add_work_experience import click_add_work_experience, click_add_another_work_experience, fill_work_experience
-from add_education import click_add_education, click_add_another_education, fill_education
-from add_url import add_urls
+from .upload_resume import upload_resume
+from .personal_info import fill_personal_info
+from .how_you_heard import how_you_heard_about_us
+from .phone_number import fill_phone_number
+from .save_and_continue import save_and_continue
+from .add_work_experience import click_add_work_experience, click_add_another_work_experience, fill_work_experience
+from .add_education import click_add_education, click_add_another_education, fill_education
+from .add_url import add_urls
 
 CDP_URL = "http://localhost:9222"
 
@@ -127,16 +127,29 @@ async def nvidia_application_workflow(
         await click_add_education(page)
         await fill_education(
             page=page,
-            index=0,
+            index=-1,  # Fill the newly added entry
             school_name="Stanford University",
-            degree="Bachelor's Degree",
+            degree="PhD",
             field_of_study="Computer Science",
             gpa="3.8",
-            start_year="2020",
-            end_year="2024",
+            start_year=2020,
+            end_year=2024,
         )
         print("Education complete.\n")
-        
+
+        # Second education: click "Add Another" then fill
+        await click_add_another_education(page)
+        await fill_education(
+            page=page,
+            index=-1,  # Fill the newly added entry
+            school_name="MIT",
+            degree="PhD",
+            field_of_study="Computer Science",
+            gpa="3.8",
+            start_year=2000,
+            end_year=2005,
+        )
+        print("Education 2 complete.\n")
         
         await add_urls(
             page=page,

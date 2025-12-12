@@ -6,7 +6,7 @@ It handles form field interactions including dropdown selections and radio butto
 """
 
 from playwright.async_api import Page
-from utils import clear_chip_field_by_input_id
+from .utils import clear_chip_field_by_input_id
 
 
 async def how_you_heard_about_us(
