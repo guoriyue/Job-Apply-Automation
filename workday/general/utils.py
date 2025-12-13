@@ -1,5 +1,6 @@
 """
-Utility functions for NVIDIA Workday job application automation.
+Utility functions for Workday job application automation.
+These are general-purpose functions that work across different Workday implementations.
 """
 
 from playwright.async_api import Page

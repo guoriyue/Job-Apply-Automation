@@ -1,8 +1,8 @@
 """
-Playwright automation script for NVIDIA job application form.
+Playwright automation script for Workday job application form.
 
 This script automates filling out the phone contact information section
-of the NVIDIA Workday job application.
+of a Workday job application.
 """
 
 from playwright.async_api import Page
@@ -71,7 +71,7 @@ async def fill_phone_number(
     await phone_number_input.type(phone_number, delay=30)
     await page.wait_for_timeout(500)
 
-    print("✓ Phone number filled successfully!")
+    print("Phone number filled successfully!")
     print(f"  - Phone Device Type: {phone_device_type}")
     print(f"  - Country Code: {country_phone_code}")
     print(f"  - Phone Number: {phone_number}")

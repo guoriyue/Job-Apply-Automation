@@ -6,16 +6,23 @@ This script orchestrates the full job application flow:
 2. Fill personal information (includes how you heard, phone, and saves form)
 """
 
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+
 import asyncio
 from playwright.async_api import async_playwright
-from upload_resume import apply_with_resume
-from personal_info import fill_job_application_info
-from workday_login import apply_to_job
+from workday.general import open_job_application_url, apply_with_resume
+from workday.expedia.personal_info import fill_job_application_info
 
 CDP_URL = "http://localhost:9222"
 
 
+EXPEDIA_JOB_URL = "https://expedia.wd108.myworkdayjobs.com/en-US/search/job/USA---California---San-Jose/Principal-Software-Development-Engineer_R-99477-1/apply/autofillWithResume?source=&source=Appcast_Indeed"
+
+
 async def expedia_application_workflow(
+    job_url: str = EXPEDIA_JOB_URL,
     resume_path: str = "resume.pdf",
     how_did_you_hear_about_us: str = "Company Career Site",
     country: str = "United States of America",
@@ -34,6 +41,7 @@ async def expedia_application_workflow(
     Run the complete Expedia job application workflow.
 
     Args:
+        job_url: URL of the job application page
         resume_path: Path to the resume file
         how_did_you_hear_about_us: How applicant learned about the position
         country: Country of residence
@@ -56,15 +64,20 @@ async def expedia_application_workflow(
         ctx = browser.contexts[0]
         page = await ctx.new_page()
 
-        # Step 1: Upload resume (navigates to URL and clicks Continue)
-        print("Step 1: Uploading resume...")
-        await apply_with_resume(
-            page=page,
-            resume_path=resume_path,
-        )
-        print("Resume upload complete.\n")
+        # Step 1: Open job application URL
+        print("Step 1: Opening job application URL...")
+        await open_job_application_url(page, job_url)
+        print("URL opened.\n")
 
-        # Step 2: Fill personal information (includes how you heard, phone, and saves)
+        # # Step 2: Upload resume and click Continue
+        # print("Step 2: Uploading resume...")
+        # await apply_with_resume(
+        #     page=page,
+        #     resume_path=resume_path,
+        # )
+        # print("Resume upload complete.\n")
+
+        # Step 3: Fill personal information (includes how you heard, phone, and saves)
         print("Step 2: Filling personal information...")
         await fill_job_application_info(
             page=page,

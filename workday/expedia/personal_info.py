@@ -5,9 +5,14 @@ This script fills out the "My Information" step of the job application at:
 https://expedia.wd108.myworkdayjobs.com/en-US/search/job/USA---California---San-Jose/Principal-Software-Development-Engineer_R-99477-1/apply/autofillWithResume
 """
 
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+
 import asyncio
 import os
 from playwright.async_api import async_playwright
+from workday.general import clear_chip_field_by_input_id
 
 
 async def fill_job_application_info(
@@ -60,8 +65,8 @@ async def fill_job_application_info(
     await page.click("#source--source")
     await page.wait_for_timeout(500)
 
-    # Click the option matching the selected value
-    await page.get_by_text(how_did_you_hear_about_us, exact=True).click()
+    # Click the option matching the selected value (use role="option" to avoid matching the button)
+    await page.get_by_role("option", name=how_did_you_hear_about_us, exact=True).click()
     await page.wait_for_timeout(500)
 
     # Step 2: Fill "Country" dropdown
@@ -69,8 +74,8 @@ async def fill_job_application_info(
     await page.click("#country--country")
     await page.wait_for_timeout(500)
 
-    # Click the option matching the selected country
-    await page.get_by_text(country, exact=True).click()
+    # Click the option matching the selected country (use role="option" to avoid matching the button)
+    await page.get_by_role("option", name=country, exact=True).click()
     await page.wait_for_timeout(500)
 
     # Step 3: Fill "First Name" text input
@@ -103,7 +108,7 @@ async def fill_job_application_info(
     if state:
         await page.click('button[id*="state"][id*="state"]')
         await page.wait_for_timeout(500)
-        await page.get_by_text(state, exact=True).click()
+        await page.get_by_role("option", name=state, exact=True).click()
         await page.wait_for_timeout(500)
 
     # Step 8: Fill "Postal Code" if provided
@@ -115,24 +120,30 @@ async def fill_job_application_info(
     await page.click("#phoneNumber--phoneType")
     await page.wait_for_timeout(500)
 
-    # Click the phone type option
-    await page.get_by_text(phone_device_type, exact=True).click()
+    # Click the phone type option (use role="option" to avoid matching the button)
+    await page.get_by_role("option", name=phone_device_type, exact=True).click()
     await page.wait_for_timeout(500)
 
+
+    await clear_chip_field_by_input_id(page, "phoneNumber--countryPhoneCode")
+    await page.wait_for_timeout(300)
     # Step 10: Handle "Country Phone Code" searchable dropdown
-    # Click on the country code input/dropdown
+    # Click on the country code input/dropdown (use input xpath for reliability)
     country_code_input = page.locator("#phoneNumber--countryPhoneCode")
+    await country_code_input.wait_for(state="visible", timeout=5000)
     await country_code_input.click()
     await page.wait_for_timeout(500)
 
     # Type to search for the country code
     search_term = country_phone_code.split("(")[0].strip().lower()
     await country_code_input.fill(search_term)
+    await page.keyboard.press("Enter")
     await page.wait_for_timeout(500)
 
-    # Click the matching option
-    await page.get_by_text(country_phone_code, exact=True).click()
-    await page.wait_for_timeout(500)
+    # # Click the matching option (use filter with has_text for flexibility)
+    # dropdown_option = page.locator("div[role='option']").filter(has_text=country_phone_code).first
+    # await dropdown_option.click()
+    # await page.wait_for_timeout(500)
 
     # Step 11: Fill "Phone Number" text input
     phone_input = page.locator("#phoneNumber--phoneNumber")

@@ -15,16 +15,16 @@ import re
 
 async def apply_for_figma_job(
     page,
-    first_name: str = "s",
-    last_name: str = "a",
-    email: str = "s",
-    phone_country: str = "United States +1",
+    first_name: str = "Miku",
+    last_name: str = "Hatsume",
+    email: str = "miku@miku.com",
+    phone_country: str = "Japan +81",
     phone_number: str = "(333) 444-5555",
-    location: str = "San Fransisco, Balearic Islands, Spain",
-    why_join: str = "i love figma",
-    work_location: str = "san fransisco, CA",
-    authorized_to_work: str = "Yes",
-    worked_before: str = "No",
+    location: str = "Tokyo, Japan",
+    why_join: str = "I love figma",
+    work_location: str = "San Fransisco, CA",
+    authorized_to_work: str = "No",
+    worked_before: str = "Yes",
     resume_path: str = "sample-resume.pdf"
 ):
     """
@@ -140,7 +140,7 @@ async def apply_for_figma_job(
 
         # Select Phone Country (custom dropdown)
         # Click to open the country dropdown
-        country = page.get_by_role("combobox", name="Country")
+        country = page.get_by_role("combobox", name="Country", exact=True)
         await country.click()
         await page.wait_for_timeout(500)
 
@@ -162,7 +162,7 @@ async def apply_for_figma_job(
         await page.wait_for_timeout(500)
 
         # Click the location option
-        location_option = page.get_by_role("option", name=location)
+        location_option = page.get_by_role("option", name=location).nth(0)
         await location_option.click()
         await page.wait_for_timeout(500)
 
@@ -250,18 +250,7 @@ if __name__ == "__main__":
 
             # Call the automation function
             await apply_for_figma_job(
-                page,
-                first_name="s",
-                last_name="a",
-                email="s",
-                phone_country="United States +1",
-                phone_number="(333) 444-5555",
-                location="San Fransisco, Balearic Islands, Spain",
-                why_join="i love figma",
-                work_location="san fransisco, CA",
-                authorized_to_work="Yes",
-                worked_before="No",
-                resume_path="sample-resume.pdf"
+                page
             )
 
             await browser.close()

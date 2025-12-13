@@ -1,13 +1,10 @@
 """
-Playwright automation script for filling NVIDIA job application with education details.
+Playwright automation script for filling job application with education details.
 
-This script automates the process of adding education information to a job application form.
+This script automates the process of adding education information to a Workday job application form.
 """
 
-import asyncio
-from playwright.async_api import async_playwright, Page
-
-CDP_URL = "http://localhost:9222"
+from playwright.async_api import Page
 
 
 async def click_add_education(page: Page) -> None:
@@ -99,7 +96,6 @@ async def fill_education(
     degree_button = get_field(page.get_by_role("button", name="Degree Select One Required"))
     await degree_button.click()
     await page.wait_for_timeout(500)
-    # await page.get_by_text(degree, exact=True).click()
     await page.get_by_role("option", name=degree).click()
     await page.wait_for_timeout(500)
 
@@ -138,44 +134,3 @@ async def fill_education(
     await page.wait_for_timeout(500)
 
     print(f"Education filled successfully (index={index})")
-
-
-if __name__ == "__main__":
-    async def main():
-        async with async_playwright() as p:
-            if CDP_URL:
-                # Connect to existing browser via CDP
-                browser = await p.chromium.connect_over_cdp(CDP_URL)
-                ctx = browser.contexts[0]
-                page = ctx.pages[0] if ctx.pages else await ctx.new_page()
-            else:
-                # Launch new headless browser
-                browser = await p.chromium.launch(headless=True)
-                page = await browser.new_page()
-
-            try:
-                # Navigate to the job application page
-                await page.goto(
-                    "https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/US,-CA,-Santa-Clara/Senior-ASIC-Test-Timing-Engineer_JR2005476/apply?source=Eightfold",
-                    wait_until="load",
-                )
-                await page.wait_for_timeout(1500)
-
-                # Call the education form filling function
-                await fill_education(
-                    page,
-                    school_name="Stanford University",
-                    degree="Masters",
-                    field_of_study="Electrical & Computer Engineering",
-                    gpa="3.0",
-                    start_year=2012,
-                    end_year=2014,
-                )
-
-                print("Done!")
-
-            except Exception as e:
-                print(f"Error: {e}")
-                raise
-
-    asyncio.run(main())

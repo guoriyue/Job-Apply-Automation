@@ -1,14 +1,11 @@
 """
-Playwright automation script for filling out NVIDIA job application form.
+Playwright automation script for filling out job application form.
 
-This script fills in work experience details on the NVIDIA career application page.
+This script fills in work experience details on a Workday career application page.
 Uses stable CSS selectors that match by ID suffix to handle dynamic IDs.
 """
 
-import asyncio
-from playwright.async_api import async_playwright, Page
-
-CDP_URL = "http://localhost:9222"
+from playwright.async_api import Page
 
 
 async def click_add_work_experience(page: Page) -> None:
@@ -20,7 +17,6 @@ async def click_add_work_experience(page: Page) -> None:
     Args:
         page: Playwright Page object
     """
-    # First time: button is called "Add", not "Add Another"
     work_exp_section = page.get_by_role("group", name="Work Experience")
     add_button = work_exp_section.get_by_role("button", name="Add")
 
@@ -29,7 +25,7 @@ async def click_add_work_experience(page: Page) -> None:
     await page.evaluate("window.scrollBy(0, 300)")
     await page.wait_for_timeout(300)
 
-    print("✓ Clicked 'Add' button in Work Experience")
+    print("Clicked 'Add' button in Work Experience")
 
 
 async def click_add_another_work_experience(page: Page) -> None:
@@ -41,7 +37,6 @@ async def click_add_another_work_experience(page: Page) -> None:
     Args:
         page: Playwright Page object
     """
-    # After first entry: button is called "Add Another"
     work_exp_section = page.get_by_role("group", name="Work Experience")
     add_button = work_exp_section.get_by_role("button", name="Add Another")
 
@@ -50,7 +45,7 @@ async def click_add_another_work_experience(page: Page) -> None:
     await page.evaluate("window.scrollBy(0, 300)")
     await page.wait_for_timeout(300)
 
-    print("✓ Clicked 'Add Another' button in Work Experience")
+    print("Clicked 'Add Another' button in Work Experience")
 
 
 async def fill_work_experience(
@@ -120,33 +115,4 @@ async def fill_work_experience(
     await role_desc_input.fill(role_description)
     await page.wait_for_timeout(300)
 
-    print(f"✓ Work experience filled (index={index})")
-
-
-if __name__ == "__main__":
-    async def main():
-        async with async_playwright() as p:
-            browser = await p.chromium.connect_over_cdp(CDP_URL)
-            ctx = browser.contexts[0] if browser.contexts else await browser.new_context()
-            page: Page = ctx.pages[0] if ctx.pages else await ctx.new_page()
-
-            try:
-                url = "https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/US,-CA,-Santa-Clara/Senior-Manager--Robotics-Quality-Assurance_JR2003248/apply/autofillWithResume"
-                await page.goto(url, wait_until="load")
-                await page.wait_for_timeout(1500)
-
-                # First work experience: click "Add" then fill
-                await click_add_work_experience(page)
-                await fill_work_experience(page, index=0, job_title="SWE", company_name="Google")
-
-                # Second work experience: click "Add Another" then fill
-                await click_add_another_work_experience(page)
-                await fill_work_experience(page, index=-1, job_title="Intern", company_name="Meta")
-
-                print("✓ Done!")
-
-            except Exception as e:
-                print(f"✗ Error: {e}")
-                raise
-
-    asyncio.run(main())
+    print(f"Work experience filled (index={index})")

@@ -5,8 +5,12 @@ This module automates filling out a NVIDIA job application form.
 It handles form field interactions including dropdown selections and radio button selections.
 """
 
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+
 from playwright.async_api import Page
-from .utils import clear_chip_field_by_input_id
+from workday.general import clear_chip_field_by_input_id
 
 
 async def how_you_heard_about_us(

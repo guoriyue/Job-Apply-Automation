@@ -1,5 +1,5 @@
 """
-Save and Continue button click automation for NVIDIA job application.
+Save and Continue button click automation for Workday job application.
 """
 
 from playwright.async_api import Page
