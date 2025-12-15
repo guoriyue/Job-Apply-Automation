@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 import asyncio
 import os
 from playwright.async_api import async_playwright
-from workday.general import clear_chip_field_by_input_id
+from workday.expedia.utils import clear_chip_field_by_input_id
 
 
 async def fill_job_application_info(

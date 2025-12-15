@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
 import asyncio
 from playwright.async_api import async_playwright
-from workday.general import (
+from workday.nvidia import (
     upload_resume,
     fill_phone_number,
     save_and_continue,

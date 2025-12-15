@@ -1,24 +1,29 @@
 """NVIDIA Workday job application automation package."""
 
-from workday.general import (
-    upload_resume,
-    fill_phone_number,
-    save_and_continue,
+from .upload_resume import open_job_application_url, upload_resume, apply_with_resume
+from .phone_number import fill_phone_number
+from .save_and_continue import save_and_continue
+from .add_work_experience import (
     click_add_work_experience,
     click_add_another_work_experience,
     fill_work_experience,
+)
+from .add_education import (
     click_add_education,
     click_add_another_education,
     fill_education,
-    add_urls,
 )
+from .add_url import add_urls
+from .add_skills import add_skills
 from .nvidia import nvidia_application_workflow
 from .personal_info import fill_personal_info
 from .how_you_heard import how_you_heard_about_us
 
 __all__ = [
     "nvidia_application_workflow",
+    "open_job_application_url",
     "upload_resume",
+    "apply_with_resume",
     "fill_personal_info",
     "how_you_heard_about_us",
     "fill_phone_number",
@@ -30,4 +35,5 @@ __all__ = [
     "click_add_another_education",
     "fill_education",
     "add_urls",
+    "add_skills",
 ]

@@ -12,13 +12,19 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
 import asyncio
 from playwright.async_api import async_playwright
-from workday.general import open_job_application_url, apply_with_resume
 from workday.expedia.personal_info import fill_job_application_info
+from workday.expedia.add_work_education import fill_job_application
 
 CDP_URL = "http://localhost:9222"
 
 
 EXPEDIA_JOB_URL = "https://expedia.wd108.myworkdayjobs.com/en-US/search/job/USA---California---San-Jose/Principal-Software-Development-Engineer_R-99477-1/apply/autofillWithResume?source=&source=Appcast_Indeed"
+
+
+async def open_job_application_url(page, job_url: str) -> None:
+    """Navigate to the job application URL."""
+    await page.goto(job_url, wait_until="load")
+    await page.wait_for_timeout(1500)
 
 
 async def expedia_application_workflow(
@@ -77,7 +83,7 @@ async def expedia_application_workflow(
         # )
         # print("Resume upload complete.\n")
 
-        # Step 3: Fill personal information (includes how you heard, phone, and saves)
+        # Step 2: Fill personal information (includes how you heard, phone, and saves)
         print("Step 2: Filling personal information...")
         await fill_job_application_info(
             page=page,
@@ -95,6 +101,11 @@ async def expedia_application_workflow(
             phone_extension=phone_extension,
         )
         print("Personal info complete.\n")
+
+        # Step 3: Fill work experience and education
+        print("Step 3: Filling work experience and education...")
+        await fill_job_application(page=page)
+        print("Work experience and education complete.\n")
 
     print("=== Workflow Complete ===")
 
