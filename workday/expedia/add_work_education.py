@@ -118,29 +118,19 @@ async def fill_job_application(
             await location_field.fill(work_exp["location"])
             await page.wait_for_timeout(300)
 
-        # Fill in work experience start date - month field
-        start_month_input = page.locator("input[id$='--startDate-dateSectionMonth-input']").last
-        await start_month_input.click()
-        await start_month_input.fill(str(work_exp["start_month"]))
+        # Fill in Start Date - click the display element first to reveal input
+        start_month_display = page.locator("div[id$='--startDate-dateSectionMonth-display']").last
+        await start_month_display.click()
+        await page.keyboard.type(str(work_exp["start_month"]))  # Type month, focus auto-moves to year
+        await page.keyboard.type(str(work_exp["start_year"]))   # Type year
         await page.wait_for_timeout(300)
 
-        # Fill in work experience start date - year field
-        start_year_input = page.locator("input[id$='--startDate-dateSectionYear-input']").last
-        await start_year_input.click()
-        await start_year_input.fill(str(work_exp["start_year"]))
+        # Fill in End Date - click the display element first to reveal input
+        end_month_display = page.locator("div[id$='--endDate-dateSectionMonth-display']").last
+        await end_month_display.click()
+        await page.keyboard.type(str(work_exp["end_month"]))  # Type month, focus auto-moves to year
+        await page.keyboard.type(str(work_exp["end_year"]))   # Type year
         await page.wait_for_timeout(300)
-
-        # Fill in work experience end date - month field
-        end_month_input = page.locator("input[id$='--endDate-dateSectionMonth-input']").last
-        await end_month_input.click()
-        await end_month_input.fill(str(work_exp["end_month"]))
-        await page.wait_for_timeout(300)
-
-        # Fill in work experience end date - year field
-        end_year_input = page.locator("input[id$='--endDate-dateSectionYear-input']").last
-        await end_year_input.click()
-        await end_year_input.fill(str(work_exp["end_year"]))
-        await page.wait_for_timeout(500)
 
         print(f"✓ Work experience dates filled: {work_exp['start_month']}/{work_exp['start_year']} to {work_exp['end_month']}/{work_exp['end_year']}")
 
